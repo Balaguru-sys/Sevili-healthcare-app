@@ -39,6 +39,7 @@ public class SecurityConfig {
             .sessionManagement(session ->
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/healthz").permitAll()   // allow health check
                 .requestMatchers("/api/auth/**", "/actuator/health").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/api/staff/**").hasRole("STAFF")
