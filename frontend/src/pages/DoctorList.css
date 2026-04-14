@@ -1,0 +1,198 @@
+.doctor-list-page {
+  padding: 0px 16px ;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.header-items{
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.list-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  font-size: 14px;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.list-state--error { color: #fb7185; }
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 0px;
+}
+
+.page-date {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary, #94a3b8);
+  margin-bottom: 4px;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary, #f1f5f9);
+}
+
+.doctor-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.glass-card {
+  background: var(--bg-card, #111827);
+  border: 1px solid var(--border, #1e293b);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.doctor-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.1s;
+}
+
+.doctor-card:hover {
+  border-color: rgba(45,212,191,0.4);
+  transform: translateY(-1px);
+}
+
+.dc-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #2dd4bf, #4a90d9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.dc-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dc-info { flex: 1; min-width: 0; }
+
+.dc-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary, #f1f5f9);
+  margin-bottom: 2px;
+}
+
+.dc-spec {
+  font-size: 12px;
+  color: var(--accent-teal, #2dd4bf);
+  margin-bottom: 2px;
+}
+
+.dc-qual {
+  font-size: 11px;
+  color: var(--text-secondary, #94a3b8);
+  margin-bottom: 8px;
+}
+
+.dc-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.dc-reviews,
+.dc-exp {
+  font-size: 11px;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.dc-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.dc-arrow {
+  color: var(--text-secondary, #94a3b8);
+  font-size: 22px;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.chip-green { background: rgba(52,211,153,0.15); color: #34d399; }
+.chip-blue  { background: rgba(96,165,250,0.15);  color: #60a5fa; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-up   { animation: fadeUp 0.4s ease both; }
+.fade-up-1 { animation: fadeUp 0.4s 0.05s ease both; }
+/* append to existing DoctorList.css */
+
+.search-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #111827;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  transition: border-color 0.2s;
+}
+.search-bar-wrap:focus-within { border-color: #2dd4bf; }
+
+.search-icon { font-size: 15px; flex-shrink: 0; }
+
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f1f5f9;
+  font-size: 14px;
+  font-family: inherit;
+}
+.search-input::placeholder { color: #475569; }
+
+.search-clear {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0;
+  flex-shrink: 0;
+}
+.search-clear:hover { color: #fb7185; }

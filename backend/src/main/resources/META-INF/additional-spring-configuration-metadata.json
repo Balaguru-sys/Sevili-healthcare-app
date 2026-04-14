@@ -1,0 +1,72 @@
+{"properties": [
+  {
+    "name": "app.jwt.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'app.jwt.secret'"
+  },
+  {
+    "name": "app.jwt.expiration",
+    "type": "java.lang.String",
+    "description": "A description for 'app.jwt.expiration'"
+  },
+  {
+    "name": "app.cors.origins",
+    "type": "java.lang.String",
+    "description": "A description for 'app.cors.origins'"
+  },
+  {
+    "name": "app.file.base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'app.file.base-url'"
+  },
+  {
+    "name": "jina.api.key",
+    "type": "java.lang.String",
+    "description": "A description for 'jina.api.key'"
+  },
+  {
+    "name": "pinecone.api.key",
+    "type": "java.lang.String",
+    "description": "A description for 'pinecone.api.key'"
+  },
+  {
+    "name": "pinecone.top-k",
+    "type": "java.lang.String",
+    "description": "A description for 'pinecone.top-k'"
+  },
+  {
+    "name": "pinecone.index.host",
+    "type": "java.lang.String",
+    "description": "A description for 'pinecone.index.host'"
+  },
+  {
+    "name": "groq.api.key",
+    "type": "java.lang.String",
+    "description": "A description for 'groq.api.key'"
+  },
+  {
+    "name": "groq.api.url",
+    "type": "java.lang.String",
+    "description": "A description for 'groq.api.url'"
+  },
+  {
+    "name": "groq.model",
+    "type": "java.lang.String",
+    "description": "A description for 'groq.model'"
+  },
+  {
+    "name": "cloudinary.cloud-name",
+    "type": "java.lang.String",
+    "description": "A description for 'cloudinary.cloud-name'"
+  },
+  {
+    "name": "cloudinary.api-key",
+    "type": "java.lang.String",
+    "description": "A description for 'cloudinary.api-key'"
+  },
+  {
+    "name": "cloudinary.api-secret",
+    "type": "java.lang.String",
+    "description": "A description for 'cloudinary.api-secret'"
+  }
+]}
