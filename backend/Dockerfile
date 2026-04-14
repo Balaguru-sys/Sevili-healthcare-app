@@ -1,14 +1,20 @@
-# Use lightweight Java runtime
-FROM eclipse-temurin:17-jdk-jammy
+# Stage 1: Build the application
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 
-# Set working directory
 WORKDIR /app
 
-# Copy compiled jar into container
-COPY target/*.jar app.jar
+COPY pom.xml .
+COPY src ./src
 
-# Expose port for Spring Boot
+RUN mvn clean package -DskipTests
+
+# Stage 2: Run the application
+FROM eclipse-temurin:17-jdk-jammy
+
+WORKDIR /app
+
+COPY --from=build /app/target/*.jar app.jar
+
 EXPOSE 8080
 
-# Start application
 ENTRYPOINT ["java","-jar","app.jar"]
