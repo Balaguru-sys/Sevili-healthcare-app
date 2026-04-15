@@ -23,11 +23,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ChatService {
 
-    private final RagService              ragService;
-    private final ChatMessageRepository   chatMessageRepository;
-    private final PatientRepository       patientRepository;
-    private final VitalsService           vitalsService;
-    private final MedicalRecordService    medicalRecordService;
+    private final RagService ragService;
+    private final ChatMessageRepository chatMessageRepository;
+    private final PatientRepository patientRepository;
+    private final VitalsService vitalsService;
+    private final MedicalRecordService medicalRecordService;
 
     private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -36,8 +36,7 @@ public class ChatService {
             "heart attack", "stroke", "unconscious", "bleeding heavily", "high fever",
             "cannot breathe", "dizzy", "fainting", "allergic reaction", "seizure",
             "vomiting blood", "sudden vision loss", "severe headache", "numbness",
-            "irregular heartbeat", "swelling", "infection",
-            "thalai vali", "moochu", "neruppu", "vali", "uravu"
+            "irregular heartbeat", "swelling", "infection"
     );
 
     private static final java.util.Map<String, String> TANGLISH_PATTERNS = java.util.Map.of(
@@ -72,11 +71,16 @@ public class ChatService {
         try {
             answer = ragService.invoke(enrichedPrompt);
         } catch (Exception e) {
-            log.error("RAG pipeline error: {}", e.getMessage());
+            log.error("RAG error for patient {}: {}", request.getPatientId(), e.getMessage());
             answer = getServiceUnavailableMessage(lang);
         }
 
         boolean consultDoctor = shouldConsultDoctor(request.getMessage(), answer);
+
+        // 🔥 Ensure better UX: append doctor suggestion only when necessary
+        if (consultDoctor) {
+            answer += "\n\n⚠️ Please consider consulting a doctor if symptoms are severe or persist.";
+        }
 
         ChatMessage botMsg = ChatMessage.builder()
                 .patient(patient)
@@ -117,7 +121,7 @@ public class ChatService {
     @Transactional(readOnly = true)
     public ChatDto.AiContext getAiContext(Long patientId) {
 
-        List<VitalsDto.Response> vitals  = vitalsService.getVitalsHistory(patientId);
+        List<VitalsDto.Response> vitals = vitalsService.getVitalsHistory(patientId);
         List<MedicalRecordDto.Response> records = medicalRecordService.getRecordsForPatient(patientId);
 
         return ChatDto.AiContext.builder()
@@ -133,7 +137,7 @@ public class ChatService {
         sb.append(getLanguageInstruction(lang)).append("\n\n");
 
         boolean askVitals = userMessage.toLowerCase().matches(
-                ".*(heart|bp|pressure|pulse|oxygen|spo2|sleep|vital).*"
+                ".*(heart|heartbeat|bp|pressure|pulse|oxygen|spo2|sleep|vital|sugar|glucose|temperature|fever).*"
         );
 
         try {
@@ -178,6 +182,13 @@ public class ChatService {
             log.warn("Could not load patient context for chat: {}", e.getMessage());
         }
 
+        // 🔥 Dynamic guidance based on severity
+        if (shouldConsultDoctor(userMessage, "")) {
+            sb.append("IMPORTANT: This may be a serious condition. Advise doctor consultation.\n\n");
+        } else {
+            sb.append("IMPORTANT: This seems like a mild issue. Provide home remedies, lifestyle advice, and OTC suggestions. Avoid unnecessary doctor recommendation.\n\n");
+        }
+
         sb.append("PATIENT QUESTION: ").append(userMessage);
 
         return sb.toString();
@@ -186,26 +197,37 @@ public class ChatService {
     private String getLanguageInstruction(String lang) {
 
         String base = """
-You are a helpful digital health assistant.
+You are a smart and practical digital health assistant.
+
+Your job is to:
+- Understand the patient's problem clearly.
+- Provide helpful, safe, and practical advice.
 
 Guidelines:
-- Answer the patient's question directly.
-- Provide simple health guidance or lifestyle advice when possible.
-- Do NOT immediately recommend consulting a doctor unless the issue is serious.
-- Mention vitals only if they are relevant to the question.
-- Keep answers clear and concise.
+1. For mild symptoms:
+   - Suggest home remedies.
+   - Suggest common over-the-counter medicines.
+   - Give lifestyle advice.
+
+2. For moderate symptoms:
+   - Suggest precautions and monitoring.
+
+3. For severe symptoms:
+   - Recommend consulting a doctor.
+
+Rules:
+- Do NOT jump to doctor consultation for minor issues.
+- ALWAYS provide at least one actionable suggestion.
+- Keep answers short and clear.
+- Do NOT prescribe strong medicines.
 """;
 
         return switch (lang) {
 
             case "TA" -> base + "\nRespond ONLY in Tamil script (தமிழ்). Do not use English.";
-
             case "HI" -> base + "\nRespond ONLY in Hindi (हिंदी).";
-
             case "ML" -> base + "\nRespond ONLY in Malayalam (മലയാളം).";
-
             case "TE" -> base + "\nRespond ONLY in Telugu (తెలుగు).";
-
             default -> base + "\nRespond in clear English.";
         };
     }
@@ -221,7 +243,7 @@ Guidelines:
                 .filter(lower::contains)
                 .count();
 
-        if (tanglishMatches >= 2) return "TA";
+        if (tanglishMatches >= 3) return "TA";
 
         if (message.matches(".*[\u0B80-\u0BFF].*")) return "TA";
         if (message.matches(".*[\u0900-\u097F].*")) return "HI";
@@ -236,20 +258,16 @@ Guidelines:
         return switch (lang) {
 
             case "TA" -> "மன்னிக்கவும், மருத்துவ சேவை தற்போது கிடைக்கவில்லை. சற்று நேரம் கழித்து மீண்டும் முயலவும்.";
-
             case "HI" -> "क्षमा करें, चिकित्सा सेवा अभी उपलब्ध नहीं है। कृपया बाद में पुनः प्रयास करें।";
-
             case "ML" -> "ക്ഷമിക്കണം, ഇപ്പോൾ ആരോഗ്യ സേവനം ലഭ്യമല്ല. ദയവായി പിന്നീട് ശ്രമിക്കുക.";
-
             case "TE" -> "క్షమించండి, ఆరోగ్య సేవ ఇప్పుడు అందుబాటులో లేదు. దయచేసి తర్వాత మళ్ళీ ప్రయత్నించండి.";
-
             default -> "The medical knowledge service is temporarily unavailable. Please try again shortly.";
         };
     }
 
     private boolean shouldConsultDoctor(String userMessage, String aiResponse) {
 
-        String combined = userMessage.toLowerCase();
+        String combined = (userMessage + " " + aiResponse).toLowerCase();
 
         return DOCTOR_CONCERN_KEYWORDS
                 .stream()
